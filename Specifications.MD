@@ -11,7 +11,6 @@ Whack-A-Prof is a fast-paced, arcade-style game where players score points by hi
   - Missing characters or hitting the wrong ones results in point deductions.
 - Special Characters:
   - A trustee character occasionally appears and, when hit, explodes in an explosion of viscera.
-  - Teams may add additional special characters with unique behaviors and scoring values.
 
 ### Teams:
 - Specifications: Define the game's requirements and features.
