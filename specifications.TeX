@@ -139,16 +139,18 @@ None (Client-side game).
 
 \chapter{System Features}
 
-\section{Gameplay Mechanics}
+\section{Gameplay and Scoring Mechanics}
 
 \subsection{Description}
-Fast-paced game requiring quick interaction with randomly appearing professor characters.
+Fast-paced game requiring quick interaction with randomly appearing professor characters. The scoring system awards and deducts points, tracks player progress, and stores top scores.
 
 \subsection{Stimulus/Response Sequences}
 \begin{enumerate}
     \item Character appears randomly.
     \item Player clicks or taps character.
     \item Game updates score immediately.
+    \item Successful character click: points awarded.
+    \item Missed clicks or inactivity: points deducted.
     \item Trustee characters trigger a special visceral explosion animation lasting approximately 1 second.
 \end{enumerate}
 
@@ -156,21 +158,6 @@ Fast-paced game requiring quick interaction with randomly appearing professor ch
 \begin{itemize}
     \item \textbf{REQ-1.1:} Characters appear using a uniformly randomized interval between 0.5 and 1.5 seconds.
     \item \textbf{REQ-1.2:} Trustee explosion animation clearly visualized with a visceral explosion of gore. The screen must be splattered with blood for 1 second, and a scream sound effect must be played.
-\end{itemize}
-
-\section{Scoring and Difficulty}
-
-\subsection{Description}
-The scoring system awards and deducts points, tracks player progress, and stores top scores.
-
-\subsection{Stimulus/Response Sequences}
-\begin{enumerate}
-    \item Successful character click: points awarded.
-    \item Missed clicks or inactivity: points deducted.
-\end{enumerate}
-
-\subsection{Functional Requirements}
-\begin{itemize}
     \item \textbf{REQ-2.1:} Score updated dynamically, immediately after each player interaction.
     \item \textbf{REQ-2.2:} Top scores stored using browser local storage.
 \end{itemize}
@@ -218,8 +205,8 @@ None identified at present.
     \item \textbf{Local Storage:} Browser's client-side storage mechanism.
 \end{itemize}
 
-\chapter{Analysis Models}
-Placeholder for future UML diagrams or other models if required.
+% \chapter{Analysis Models}
+% Placeholder for future UML diagrams or other models if required.
 
 \chapter{To Be Determined (TBD) List}
 \begin{itemize}
