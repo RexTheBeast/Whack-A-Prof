@@ -52,7 +52,7 @@ The IEEE standard for SRS documentation is followed.
 \end{itemize}
 
 \section{Project Scope}
-Whack-a-Prof is an arcade-style browser game inspired by Whack-a-Mole. Players interact with professor characters to earn points, developed as a CISC 3140 project at Brooklyn College.
+Whack-a-Prof is an arcade-style browser game inspired by Whack-a-Mole. Players interact by successfully clicking on the professors that pop up through holes to earn points. This game was developed as a CISC 3140 project at Brooklyn College.
 
 \section{References}
 \begin{itemize}
@@ -68,9 +68,9 @@ This game is standalone, browser-based, and client-side. It uses HTML5, JavaScri
 \section{Product Functions}
 \begin{itemize}
     \item Initiating, pausing, and ending gameplay
-    \item Scoring points by clicking characters
+    \item Scoring points by successfully clicking the professor character that pops up through holes
     \item Random character appearances
-    \item Local storage leaderboard
+    \item Local storage leaderboard that showcases the player with the highest score
     \item Special "trustee" character with unique explosion animation
 \end{itemize}
 
@@ -114,7 +114,7 @@ This game is standalone, browser-based, and client-side. It uses HTML5, JavaScri
 Main game screen consists of:
 \begin{itemize}
     \item Main menu buttons clearly labeled: "Start," "Tutorial," "High Scores"
-    \item Game screen with clickable characters
+    \item Game screen with clickable professor characters that pop up through holes
     \item Dynamic timer and score display
     \item Pause/Resume and Exit buttons clearly visible
 \end{itemize}
@@ -142,11 +142,11 @@ None (Client-side game).
 \section{Gameplay and Scoring Mechanics}
 
 \subsection{Description}
-Fast-paced game requiring quick interaction with randomly appearing professor characters. The scoring system awards and deducts points, tracks player progress, and stores top scores.
+A fast-paced game where professors randomly pop out of holes, requiring quick interaction. The scoring system awards and deducts points, tracks player progress, and stores top scores. A successful hit will add 10 point to your score, and a miss will deduct 5 points.
 
 \subsection{Stimulus/Response Sequences}
 \begin{enumerate}
-    \item Character appears randomly.
+    \item Character appears randomly through holes
     \item Player clicks or taps character.
     \item Game updates score immediately.
     \item Successful character click: points awarded.
