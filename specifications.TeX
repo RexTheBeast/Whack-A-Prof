@@ -1,218 +1,239 @@
-\documentclass{scrreprt}
-\usepackage{listings}
-\usepackage{underscore}
-\usepackage[bookmarks=true]{hyperref}
-\usepackage[utf8]{inputenc}
-\usepackage[english]{babel}
+\documentclass[11pt]{scrreprt}
+% ------------------------------------------------------
+% Basic typography and internationalisation
+\usepackage[T1]{fontenc}        % modern font encoding
+\usepackage[utf8]{inputenc}     % UTF-8 source
+\usepackage[english]{babel}     
+\usepackage{lmodern}            % improved Latin Modern fonts
+\usepackage{microtype}          % better kerning & justification
+\usepackage{xspace}            % smart spacing after commands
+% ------------------------------------------------------
+% Layout
 \usepackage{geometry}
 \geometry{margin=1in}
-
-\def\myversion{1.0}
+% Listings (for any future code extracts)
+\usepackage{listings}
+\lstset{
+  basicstyle   = \ttfamily\small,
+  breaklines   = true,
+  frame        = single,
+  showstringspaces = false
+}
+% Hyperlinks
+\usepackage{hyperref}
+\hypersetup{
+  pdfusetitle,
+  colorlinks  = false,
+  pdfborder   = {0 0 0}
+}
+% ------------------------------------------------------
+% Convenience macros
+\newcommand*{\product}{\textit{Whack-a-Prof}\xspace}
+\def\version{1.1}
 \date{\today}
-
+% ------------------------------------------------------
 \begin{document}
 
+% =============== Title page ===============================================
 \begin{titlepage}
-    \centering
-    {\Huge\bfseries SOFTWARE REQUIREMENTS\\ SPECIFICATION \par}
-    \vspace{1.5cm}
-    {\LARGE Whack-a-Prof Game\par}
-    \vfill
-    {\Large Version \myversion\\}
-    \vspace{1cm}
-    {\large Prepared by Team 2 - Specifications Group\\}
-    {\large CISC 3140 Project\\}
-    {\large Brooklyn College\\}
-    {\large \today\\}
-    \vfill
-    \rule{\linewidth}{0.5mm}
+  \centering
+  {\Huge\bfseries Software Requirements\\[4pt] Specification\par}
+  \vspace{1.5cm}
+  {\LARGE \product\par}
+  \vfill
+  {\Large Version \version\par}
+  \vspace{1cm}
+  {\large Prepared by Team 2 – Specifications Group\par}
+  {\large CISC 3140 Project • Brooklyn College\par}
+  {\large \today}
+  \vfill
+  \rule{\linewidth}{0.5mm}
 \end{titlepage}
 
-\hypersetup{
-    colorlinks=false,
-    pdfborder={0 0 0},
-}
-
 \tableofcontents
-\newpage
+\clearpage
 
+% ====================== 1  INTRODUCTION ====================================
 \chapter{Introduction}
 
 \section{Purpose}
-This document specifies the detailed requirements for the Whack-a-Prof browser-based game, including features, user interfaces, design constraints, and interactions.
+This document specifies the requirements for the browser-based game \product, covering functionality, user interfaces, constraints, and external interactions.
 
 \section{Document Conventions}
-The IEEE standard for SRS documentation is followed.
+The structure follows IEEE Std 830-1998 (SRS).
 
 \section{Intended Audience and Reading Suggestions}
 \begin{itemize}
-    \item \textbf{Development Team:} Sections 2-5
-    \item \textbf{QA Testers:} Sections 3-5
-    \item \textbf{Evaluators (Professors, etc.):} All sections recommended
+  \item \textbf{Development Team}: Chapters 2–5
+  \item \textbf{QA Testers}: Chapters 3–5
+  \item \textbf{Evaluators}: All chapters
 \end{itemize}
 
 \section{Project Scope}
-Whack-a-Prof is an arcade-style browser game inspired by Whack-a-Mole. Players interact by successfully clicking on the professors as the doors open to earn points. This game was developed as a CISC 3140 project at Brooklyn College.
+\product is an arcade-style browser game inspired by \emph{Whack-a-Mole}. Players earn points by clicking professors as doors open. The game was developed for CISC 3140 at Brooklyn College.
 
 \section{References}
 \begin{itemize}
-    \item IEEE SRS Standard 830-1998
-    \item Karl E. Wiegers’ Template: \url{http://karlwiegers.com}
+  \item IEEE SRS Standard 830-1998
+  \item K. Wiegers, “Software Requirements,” \url{http://karlwiegers.com}
 \end{itemize}
 
+% ====================== 2  OVERALL DESCRIPTION =============================
 \chapter{Overall Description}
 
 \section{Product Perspective}
-This game is standalone, browser-based, and client-side. It uses HTML5, JavaScript (with libraries), and CSS.
+\product is a standalone, client-side web application built with HTML5, JavaScript, and CSS.
 
 \section{Product Functions}
 \begin{itemize}
-    \item Initiating, pausing, and ending gameplay
-    \item Scoring points by successfully clicking the professor character as the doors open
-    \item Random character appearances
-    \item Local storage leaderboard that showcases the player with the highest score
-    \item Special "trustee" character with unique explosion animation
+  \item Start, pause, and end gameplay
+  \item Score points by clicking professor characters
+  \item Randomised character appearance
+  \item Local-storage leaderboard (highest score)
+  \item Special “trustee” character with unique explosion animation
 \end{itemize}
 
 \section{User Classes and Characteristics}
 \begin{itemize}
-    \item \textbf{Primary:} Project evaluators/professors
-    \item \textbf{Secondary:} QA testers
-    \item \textbf{Tertiary:} Development team
-    \item \textbf{End-user:} General players
+  \item \textbf{Primary}: Project evaluators / professors
+  \item \textbf{Secondary}: QA testers
+  \item \textbf{Tertiary}: Development team
+  \item \textbf{End-users}: General players
 \end{itemize}
 
 \section{Operating Environment}
 \begin{itemize}
-    \item Hardware: PC, laptop, mobile device
-    \item Software: Modern browsers supporting HTML5, CSS3, JavaScript, and local storage
-    \item Screen Resolution: Minimum 1024x768 pixels
+  \item \emph{Hardware}: PC, laptop, or mobile device
+  \item \emph{Software}: Any modern HTML5-capable browser
+  \item \emph{Resolution}: $\geq$ 1024 × 768 px
 \end{itemize}
 
 \section{Design and Implementation Constraints}
 \begin{itemize}
-    \item Entirely in JavaScript (with permitted libraries)
-    \item Subversion hosted on Brooklyn College Unix servers
+  \item Implemented entirely in JavaScript (approved libraries permitted)
+  \item Source repository hosted on Brooklyn College SVN servers
 \end{itemize}
 
 \section{User Documentation}
 \begin{itemize}
-    \item In-game interactive tutorial
-    \item Contextual help prompts and tooltips
+  \item In-game interactive tutorial
+  \item Contextual help prompts / tooltips
 \end{itemize}
 
 \section{Assumptions and Dependencies}
 \begin{itemize}
-    \item Enabled JavaScript and local storage in browsers
-    \item Modern web browsers (Chrome, Firefox, Safari, Edge)
-    \item Possible use of external JavaScript libraries (to be specified during development)
+  \item JavaScript and local-storage enabled in browser
+  \item Target browsers: Chrome, Firefox, Safari, Edge (latest two versions)
+  \item External libraries may be adopted later (TBD)
 \end{itemize}
 
+% ====================== 3  EXTERNAL INTERFACES =============================
 \chapter{External Interface Requirements}
 
 \section{User Interfaces}
-Main game screen consists of:
+The main screen comprises:
 \begin{itemize}
-    \item Main menu buttons clearly labeled: "Start," "Tutorial," "High Scores"
-    \item Game screen with clickable professor characters appear as random doors open
-    \item Dynamic timer and score display
-    \item Pause/Resume and Exit buttons clearly visible
+  \item Clearly labelled buttons: \textsc{Start}, \textsc{Tutorial}, \textsc{High Scores}
+  \item Game field where professors appear behind doors
+  \item Dynamic timer and score display
+  \item Pause/Resume and Exit controls
 \end{itemize}
-
-Sketches and mockups to be provided separately.
+Sketches and mock-ups will be supplied separately.
 
 \section{Hardware Interfaces}
-Supported user input includes:
 \begin{itemize}
-    \item Mouse/Trackpad
-    \item Touchscreen devices
+  \item Mouse / track-pad
+  \item Touchscreen
 \end{itemize}
 
 \section{Software Interfaces}
 \begin{itemize}
-    \item HTML5, CSS3, JavaScript libraries
-    \item Browser local storage API for high scores
+  \item HTML5, CSS3, JavaScript libraries
+  \item Browser Local Storage API
 \end{itemize}
 
 \section{Communication Interfaces}
-None (Client-side game).
+None (client-side only).
 
+% ====================== 4  SYSTEM FEATURES =================================
 \chapter{System Features}
 
 \section{Gameplay and Scoring Mechanics}
 
 \subsection{Description}
-A fast-paced game where random doors open, revealing professors behind them, and players must quickly click on the professors to earn points. The scoring system awards and deducts points, tracks player progress, and stores top scores. 
+A fast-paced game in which doors open at random and reveal professors. Players click them to earn points; an on-screen score updates immediately. Top scores persist locally.
 
 \subsection{Stimulus/Response Sequences}
 \begin{enumerate}
-    \item Professor character appears from random doors that open
-    \item Player clicks or taps character.
-    \item Game updates score immediately.
-    \item Successful character click: 10 points awarded.
-    \item Missed clicks or inactivity: 5 points deducted.
-    \item Trustee characters trigger a special visceral explosion animation lasting approximately 1 second.
+  \item Door opens; professor character appears.
+  \item Player clicks / taps character.
+  \item Game increments score.
+  \item Successful hit: +10 points.
+  \item Miss or inactivity: –5 points.
+  \item Trustee character triggers a brief explosion animation ($\approx$ 1 s).
 \end{enumerate}
 
 \subsection{Functional Requirements}
 \begin{itemize}
-    \item \textbf{REQ-1.1:} Characters appear using a uniformly randomized interval between 0.5 and 1.5 seconds.
-    \item \textbf{REQ-1.2:} Trustee explosion animation clearly visualized with a visceral explosion of gore. The screen must be splattered with blood for 1 second, and a scream sound effect must be played.
-    \item \textbf{REQ-2.1:} Score updated dynamically, immediately after each player interaction.
-    \item \textbf{REQ-2.2:} Top scores stored using browser local storage.
+  \item \textbf{REQ-1.1}: Characters appear at uniformly random intervals of 0.5–1.5 s.
+  \item \textbf{REQ-1.2}: Trustee explosion animation must visibly overlay the screen for $\approx$ 1 s and play an accompanying sound effect.
+  \item \textbf{REQ-2.1}: Score updates in real-time after each interaction.
+  \item \textbf{REQ-2.2}: Top scores are stored via Local Storage.
 \end{itemize}
 
-\chapter{Nonfunctional Requirements}
+% ====================== 5  NON-FUNCTIONAL REQS =============================
+\chapter{Non-functional Requirements}
 
-\section{Performance Requirements}
+\section{Performance}
 \begin{itemize}
-    \item Load time $\leq$ 5 seconds.
-    \item Consistent 60 FPS animation rendering.
+  \item Initial page load $\leq$ 5 s (on broadband).
+  \item Animation renders at 60 fps on supported hardware.
 \end{itemize}
 
-\section{Security Requirements}
-No sensitive information handling required. Scores stored locally.
+\section{Security}
+No sensitive data processed. All data remain local to the browser.
 
 \section{Software Quality Attributes}
 \begin{itemize}
-    \item Easy maintainability, readability of code.
-    \item Robustness and stability during gameplay.
+  \item Readable, maintainable codebase
+  \item Robust gameplay with graceful error handling
 \end{itemize}
 
 \section{Error Handling}
 \begin{itemize}
-    \item Game gracefully handles local storage limitations.
-    \item Game gracefully handles unexpected user interactions or browser incompatibilities, providing clear error messages.
+  \item Detect and report Local Storage quota issues.
+  \item Provide clear feedback for unsupported browsers.
 \end{itemize}
 
 \section{Future Enhancements}
-Possible enhancements:
 \begin{itemize}
-    \item Multiplayer mode
-    \item Additional characters and special effects
+  \item Multiplayer mode
+  \item Additional characters and effects
 \end{itemize}
 
+% ====================== 6  OTHER REQUIREMENTS ==============================
 \chapter{Other Requirements}
-None identified at present.
+None at present.
 
+% ====================== APPENDICES =========================================
 \appendix
 
 \chapter{Glossary}
-\begin{itemize}
-    \item \textbf{Professor character:} Standard clickable targets resembling faculty members.
-    \item \textbf{Trustee character:} Special character triggering a visceral explosion animation upon interaction.
-    \item \textbf{FPS:} Frames Per Second, animation smoothness metric.
-    \item \textbf{Local Storage:} Browser's client-side storage mechanism.
-\end{itemize}
+\begin{description}
+  \item[Professor] Standard clickable target.
+  \item[Trustee] Special character triggering explosion animation.
+  \item[FPS] Frames per second.
+  \item[Local Storage] Browser-side key-value store.
+\end{description}
 
-% \chapter{Analysis Models}
-% Placeholder for future UML diagrams or other models if required.
+%\chapter{Analysis Models}
+% Placeholder for future UML diagrams or other models.
 
-\chapter{To Be Determined (TBD) List}
+\chapter{To Be Determined (TBD)}
 \begin{itemize}
-    \item Final UI mockups and design specifics.
-    \item Final choice of JavaScript libraries.
-    \item Exact animation specifications for the trustee explosion effect.
+  \item Final UI mock-ups and design specifics
+  \item Final JavaScript library selection
+  \item Precise animation specification for trustee effect
 \end{itemize}
 
 \end{document}
