@@ -342,11 +342,17 @@ class Game {
           this.activeMoles.add(holeIndex);
           this.ui.showMole(holeIndex);
 
-          // Schedule removal
+          // Schedule removal AND PENALTY
           setTimeout(() => {
               // Only remove if it's still supposed to be active (wasn't whacked)
               // And if game hasn't been stopped/paused in the meantime
                if (this.gameRunning && !this.gamePaused && this.activeMoles.has(holeIndex)) {
+
+                    // Penalty for not whacking
+                    this.score -= 5; // Adjust score for missed whack
+                    this.ui.updateScoreDisplay(this.score);
+                    // Visual feedback call here: this.ui.showExpiryFeedback(holeIndex);
+                    // Add sound effect call here: this.ui.playSound('expire');
                     this.activeMoles.delete(holeIndex);
                     this.ui.hideMole(holeIndex);
                }
