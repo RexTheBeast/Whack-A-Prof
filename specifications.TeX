@@ -105,7 +105,13 @@ The structure follows IEEE Std 830-1998 (SRS).
 \begin{itemize}
   \item \emph{Hardware}: PC, laptop, or mobile device
   \item \emph{Software}: Any modern HTML5-capable browser
-  \item \emph{Resolution}: $\geq$ 1024 × 768 px
+  \item \emph{Resolution}:
+    \begin{itemize}
+      \item Minimum supported: 1024 × 768 px
+      \item Optimized for: 1280 x 720 px, 1366 × 768 px, 1920 × 1080 px
+      \item Mobile support: Responsive layout for screens $\geq$ 375 × 667 px
+      \item High-DPI screens (e.g., Retina) supported
+    \end{itemize}
 \end{itemize}
 
 \section{Design and Implementation Constraints}
