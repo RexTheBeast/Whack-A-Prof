@@ -7,14 +7,16 @@ const scoreDisplay = document.getElementById('score');
 const timerDisplay = document.getElementById('timer');
 const endGameCard = document.getElementById('end-game-card');
 const availableTime = 30;
-const moleInterval = 800; // Time in milliseconds for mole to appear
 const height = 4; 
 const width = 4;
+const characterDuration = 2000; // How long each character stays visible (ms)
 let score = 0;
-let moleIndex = null;
-let moleTimer = null;
+let activeCharacters = new Set(); // Track active characters by their hole index
+let gameRunning = false;
 let countdownTimer = null;
 let timeLeft = availableTime;
+let gamePaused = false;
+let nextCharacterTimeout = null;
 
 // Function to hide all screens
 function hideAllScreens() {
@@ -86,20 +88,42 @@ function createHoles(rows, cols) {
   }
 }
 
-function randomMole() {
+function spawnCharacter() {
+  if (gamePaused || !gameRunning) return;
+  
   const holes = document.querySelectorAll('.hole');
-  holes.forEach(hole => hole.classList.remove('mole'));
+  const availableHoles = [...holes].filter((hole, index) => !activeCharacters.has(index));
+  
+  // Only spawn if there are available holes
+  if (availableHoles.length > 0) {
+    const randomHoleIndex = Math.floor(Math.random() * availableHoles.length);
+    const selectedHole = availableHoles[randomHoleIndex];
+    const holeIndex = parseInt(selectedHole.dataset.index);
+    
+    // Add mole to the selected hole
+    selectedHole.classList.add('mole');
+    activeCharacters.add(holeIndex);
+    
+    // Remove mole after characterDuration milliseconds
+    setTimeout(() => {
+      if (!gamePaused) {
+        selectedHole.classList.remove('mole');
+        activeCharacters.delete(holeIndex);
+      }
+    }, characterDuration);
+  }
 
-  const randomIndex = Math.floor(Math.random() * holes.length);
-  holes[randomIndex].classList.add('mole');
-  moleIndex = randomIndex;
+  // Schedule next character spawn
+  const nextInterval = Math.floor(Math.random() * 1001) + 500;
+  nextCharacterTimeout = setTimeout(spawnCharacter, nextInterval);
 }
 
 function whack(event) {
-  if (parseInt(event.target.dataset.index) === moleIndex) {
-    score+=10;
+  const index = parseInt(event.target.dataset.index);
+  if (activeCharacters.has(index)) {
+    score += 10;
     scoreDisplay.textContent = "Score: " + score;
-    moleIndex = null;
+    activeCharacters.delete(index);
     event.target.classList.remove('mole');
   }
 }
@@ -110,11 +134,18 @@ function resetGame() {
   scoreDisplay.textContent = "Score: 0";
   timerDisplay.textContent = "Time Left: " + timeLeft;
 
-  clearInterval(moleTimer);
+  clearTimeout(nextCharacterTimeout);
   clearInterval(countdownTimer);
-  moleTimer = null;
+  nextCharacterTimeout = null;
   countdownTimer = null;
+  gameRunning = false;
+  gamePaused = false;
 
+  // Clear any active characters
+  const holes = document.querySelectorAll('.hole');
+  holes.forEach(hole => hole.classList.remove('mole'));
+  activeCharacters.clear();
+  
   endGameCard.style.display = 'none';
 }
 
@@ -122,16 +153,18 @@ function resetGame() {
 function startGame() {
   const startButton = document.querySelector('.start-game-button');
 
-  if (countdownTimer !== null) {
+  if (gameRunning) {
     // Game is running, so manually end it
     endGame();
     return;
   }
 
   resetGame();
-  randomMole();
-
-  moleTimer = setInterval(randomMole, moleInterval);
+  gameRunning = true;
+  
+  // Start spawning characters
+  spawnCharacter();
+  
   countdownTimer = setInterval(() => {
     timeLeft--;
     timerDisplay.textContent = "Time Left: " + timeLeft;
@@ -145,10 +178,11 @@ function startGame() {
 }
 
 function endGame() {
-  clearInterval(moleTimer);
+  clearTimeout(nextCharacterTimeout);
   clearInterval(countdownTimer);
-  moleTimer = null;
+  nextCharacterTimeout = null;
   countdownTimer = null;
+  gameRunning = false;
 
   const pauseButton = document.querySelector('.pause-button');
   pauseButton.textContent = "Start Game";
@@ -169,18 +203,10 @@ function closeEndGameCard() {
 function togglePause() {
   const pauseButton = document.querySelector('.pause-button');
 
-  if (countdownTimer !== null) {
-    // Pause the game
-    clearInterval(moleTimer);
-    clearInterval(countdownTimer);
-    moleTimer = null;
-    countdownTimer = null;
-    pauseButton.textContent = "Unpause";
-    timerDisplay.textContent += " (Paused)";
-  } else {
+  if (gamePaused) {
     // Unpause the game
-    randomMole();
-    moleTimer = setInterval(randomMole, moleInterval);
+    gamePaused = false;
+    spawnCharacter();
     countdownTimer = setInterval(() => {
       timeLeft--;
       timerDisplay.textContent = "Time Left: " + timeLeft;
@@ -191,6 +217,15 @@ function togglePause() {
     }, 1000);
     pauseButton.textContent = "Pause";
     timerDisplay.textContent = timerDisplay.textContent.replace(" (Paused)", "");
+  } else {
+    // Pause the game
+    clearTimeout(nextCharacterTimeout);
+    clearInterval(countdownTimer);
+    nextCharacterTimeout = null;
+    countdownTimer = null;
+    gamePaused = true;
+    pauseButton.textContent = "Unpause";
+    timerDisplay.textContent += " (Paused)";
   }
 }
 
