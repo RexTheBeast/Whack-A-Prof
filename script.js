@@ -4,7 +4,6 @@ const timerDisplay = document.getElementById('timer');
 const endGameCard = document.getElementById('end-game-card');
 const availableTime = 30;
 const moleInterval = 800; // Time in milliseconds for mole to appear
-const holeCount = 9;
 let score = 0;
 let moleIndex = null;
 let moleTimer = null;
@@ -24,12 +23,14 @@ function scaleBoard() {
   document.documentElement.style.setProperty('--gap' , gap  + 'px');
 }
 
-window.addEventListener('load'   , () => { createHoles(); scaleBoard(); });
+window.addEventListener('load'   , () => { createHoles(4,4); scaleBoard(); });
 window.addEventListener('resize' , scaleBoard);
 
-function createHoles() {
-  game.innerHTML = ''; // Clear any existing holes
-  for (let i = 0; i < holeCount; i++) {
+function createHoles(rows, cols) {
+  game.innerHTML = '';
+  const totalHoles = rows * cols;
+  game.style.gridTemplateColumns = 'repeat(' + cols + ', 1fr)';
+  for (let i = 0; i < totalHoles; i++) {
     const hole = document.createElement('div');
     hole.classList.add('hole');
     hole.dataset.index = i;
