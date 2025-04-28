@@ -162,7 +162,8 @@ function resetGame() {
 
 function startGame() {
   const startButton = document.querySelector('.start-game-button');
-
+  const pauseButton = document.querySelector('.pause-button');
+  pauseButton.style.display = "inline-block";
   if (gameRunning) {
     // Game is running, so manually end it
     endGame();
@@ -193,9 +194,11 @@ function endGame() {
   nextCharacterTimeout = null;
   countdownTimer = null;
   gameRunning = false;
+  const pauseButton = document.querySelector('.pause-button');
+  pauseButton.style.display = "none";
 
-  const pauseButton = document.querySelector('.start-game-button');
-  pauseButton.textContent = "Start Game";
+  const startButton = document.querySelector('.start-game-button');
+  startButton.textContent = "Start Game";
 
   endGameCard.innerHTML = `<div class="card-content">
     <h2>Game Over!</h2>

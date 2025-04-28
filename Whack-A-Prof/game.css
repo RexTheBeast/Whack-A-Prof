@@ -118,3 +118,7 @@ body {
   .hidden {
     display: none;
   }
+
+  .pause-button {
+    display: none;
+  }
