@@ -10,6 +10,21 @@ let moleTimer = null;
 let countdownTimer = null;
 let timeLeft = availableTime
 
+function scaleBoard() {
+  const maxSide = Math.min(
+    window.innerWidth * 0.75,
+    window.innerHeight * 0.6667
+  );
+  const hole = maxSide / (3+2*0.15);
+  const gap = hole * 0.15;
+
+  document.documentElement.style.setProperty('--hole', hole + 'px');
+  document.documentElement.style.setProperty('--gap' , gap  + 'px');
+}
+
+window.addEventListener('load'   , () => { createHoles(); scaleBoard(); });
+window.addEventListener('resize' , scaleBoard);
+
 function createHoles() {
   game.innerHTML = ''; // Clear any existing holes
   for (let i = 0; i < holeCount; i++) {
