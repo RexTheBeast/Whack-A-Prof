@@ -114,3 +114,7 @@ body {
   .card-content button {
     margin-top: 15px;
   }
+
+  .hidden {
+    display: none;
+  }

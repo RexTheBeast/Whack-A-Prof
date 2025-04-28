@@ -1,4 +1,9 @@
+
+const mainMenu = document.getElementById('main-menu');
 const game = document.getElementById('game');
+const gameplay = document.getElementById('gameplay');
+const tutorial = document.getElementById('tutorial');
+const highScores = document.getElementById('high-scores');
 const scoreDisplay = document.getElementById('score');
 const timerDisplay = document.getElementById('timer');
 const endGameCard = document.getElementById('end-game-card');
@@ -8,7 +13,46 @@ let score = 0;
 let moleIndex = null;
 let moleTimer = null;
 let countdownTimer = null;
-let timeLeft = availableTime
+let timeLeft = availableTime;
+
+// Function to hide all screens
+function hideAllScreens() {
+  mainMenu.classList.add('hidden');
+  tutorial.classList.add('hidden');
+  highScores.classList.add('hidden');
+  gameplay.classList.add('hidden');
+}
+
+// Function to show the main menu
+function showMainMenu() {
+  hideAllScreens();
+  mainMenu.classList.remove('hidden');
+}
+
+// Set up button listeners
+document.getElementById('play-button').addEventListener('click', () => {
+  hideAllScreens();
+  gameplay.classList.remove('hidden');
+});
+
+document.getElementById('tutorial-button').addEventListener('click', () => {
+  hideAllScreens();
+  tutorial.classList.remove('hidden');
+});
+
+document.getElementById('leaderboard-button').addEventListener('click', () => {
+  hideAllScreens();
+  highScores.classList.remove('hidden');
+});
+
+// Back buttons return to main menu
+document.querySelectorAll('.back-button').forEach(button => {
+  button.addEventListener('click', showMainMenu);
+});
+
+// Start by showing only main menu
+showMainMenu();
+
 
 function scaleBoard() {
   timerDisplay.textContent = "Time Left: " + availableTime;
@@ -72,7 +116,7 @@ function resetGame() {
 }
 
 function startGame() {
-  const startButton = document.querySelector('button');
+  const startButton = document.querySelector('start-game-button');
 
   if (countdownTimer !== null) {
     // Game is running, so manually end it
@@ -102,7 +146,7 @@ function endGame() {
   moleTimer = null;
   countdownTimer = null;
 
-  const startButton = document.querySelector('button');
+  const startButton = document.querySelector('pause-button');
   startButton.textContent = "Start Game";
 
   endGameCard.innerHTML = `<div class="card-content">
@@ -117,3 +161,5 @@ function closeEndGameCard() {
   endGameCard.style.display = 'none';
   resetGame();
 }
+
+
