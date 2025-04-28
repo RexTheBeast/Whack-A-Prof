@@ -1,4 +1,3 @@
-
 const mainMenu = document.getElementById('main-menu');
 const game = document.getElementById('game');
 const gameplay = document.getElementById('gameplay');
@@ -9,6 +8,8 @@ const timerDisplay = document.getElementById('timer');
 const endGameCard = document.getElementById('end-game-card');
 const availableTime = 30;
 const moleInterval = 800; // Time in milliseconds for mole to appear
+const height = 4; 
+const width = 4;
 let score = 0;
 let moleIndex = null;
 let moleTimer = null;
@@ -60,20 +61,22 @@ function scaleBoard() {
     window.innerWidth * 0.75,
     window.innerHeight * 0.6667
   );
-  const hole = maxSide / (3+2*0.15);
+  const hole = maxSide / Math.max(height + 2*0.25, width + 2*0.25);
   const gap = hole * 0.15;
 
   document.documentElement.style.setProperty('--hole', hole + 'px');
-  document.documentElement.style.setProperty('--gap' , gap  + 'px');
+  document.documentElement.style.setProperty('--gap', gap + 'px');
 }
 
-window.addEventListener('load'   , () => { createHoles(4,4); scaleBoard(); });
+window.addEventListener('load'   , () => { createHoles(height, width); scaleBoard(); });
 window.addEventListener('resize' , scaleBoard);
 
 function createHoles(rows, cols) {
   game.innerHTML = '';
   const totalHoles = rows * cols;
-  game.style.gridTemplateColumns = 'repeat(' + cols + ', 1fr)';
+  game.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+  game.style.gridTemplateRows = `repeat(${rows}, 1fr)`;
+  
   for (let i = 0; i < totalHoles; i++) {
     const hole = document.createElement('div');
     hole.classList.add('hole');
