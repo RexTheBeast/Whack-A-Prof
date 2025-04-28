@@ -1,14 +1,19 @@
-# Ignore system files
-**/.DS_Store
+# macOS system files
+.DS_Store
 
-# Ignore temporary files
-*~
-*.swp
-*.swo
-*.tmp
-*.bak
+# Node modules (if you have a package.json)
+node_modules/
 
-# Ignore specific files
-references/srs_template-ieee.pdf
-.vscode/settings.json
-specifications.synctex.gz
+# Build output
+dist/
+build/
+
+# Logs
+*.log
+
+# Environment variables
+.env
+
+# VS Code settings (optional)
+.vscode/
+
