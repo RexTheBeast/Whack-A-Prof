@@ -194,7 +194,7 @@ function endGame() {
   countdownTimer = null;
   gameRunning = false;
 
-  const pauseButton = document.querySelector('.pause-button');
+  const pauseButton = document.querySelector('.start-game-button');
   pauseButton.textContent = "Start Game";
 
   endGameCard.innerHTML = `<div class="card-content">
