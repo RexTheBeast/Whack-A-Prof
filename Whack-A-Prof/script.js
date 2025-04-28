@@ -118,8 +118,9 @@ function resetGame() {
   endGameCard.style.display = 'none';
 }
 
+
 function startGame() {
-  const startButton = document.querySelector('start-game-button');
+  const startButton = document.querySelector('.start-game-button');
 
   if (countdownTimer !== null) {
     // Game is running, so manually end it
@@ -149,8 +150,8 @@ function endGame() {
   moleTimer = null;
   countdownTimer = null;
 
-  const startButton = document.querySelector('pause-button');
-  startButton.textContent = "Start Game";
+  const pauseButton = document.querySelector('.pause-button');
+  pauseButton.textContent = "Start Game";
 
   endGameCard.innerHTML = `<div class="card-content">
     <h2>Game Over!</h2>
@@ -165,4 +166,32 @@ function closeEndGameCard() {
   resetGame();
 }
 
+function togglePause() {
+  const pauseButton = document.querySelector('.pause-button');
 
+  if (countdownTimer !== null) {
+    // Pause the game
+    clearInterval(moleTimer);
+    clearInterval(countdownTimer);
+    moleTimer = null;
+    countdownTimer = null;
+    pauseButton.textContent = "Unpause";
+    timerDisplay.textContent += " (Paused)";
+  } else {
+    // Unpause the game
+    randomMole();
+    moleTimer = setInterval(randomMole, moleInterval);
+    countdownTimer = setInterval(() => {
+      timeLeft--;
+      timerDisplay.textContent = "Time Left: " + timeLeft;
+
+      if (timeLeft <= 0) {
+        endGame();
+      }
+    }, 1000);
+    pauseButton.textContent = "Pause";
+    timerDisplay.textContent = timerDisplay.textContent.replace(" (Paused)", "");
+  }
+}
+
+document.querySelector('.pause-button').addEventListener('click', togglePause);
