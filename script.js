@@ -1,6 +1,7 @@
 const game = document.getElementById('game');
 const scoreDisplay = document.getElementById('score');
 const timerDisplay = document.getElementById('timer');
+const endGameCard = document.getElementById('end-game-card');
 const availableTime = 30;
 const moleInterval = 800; // Time in milliseconds for mole to appear
 const holeCount = 9;
@@ -11,6 +12,7 @@ let countdownTimer = null;
 let timeLeft = availableTime
 
 function scaleBoard() {
+  timerDisplay.textContent = "Time Left: " + availableTime;
   const maxSide = Math.min(
     window.innerWidth * 0.75,
     window.innerHeight * 0.6667
@@ -62,25 +64,55 @@ function resetGame() {
 
   clearInterval(moleTimer);
   clearInterval(countdownTimer);
+  moleTimer = null;
+  countdownTimer = null;
+
+  endGameCard.style.display = 'none';
 }
 
 function startGame() {
-  resetGame(); // Sets all game related variables to their initial state
-  randomMole(); // Show the first mole immediately
+  const startButton = document.querySelector('button');
 
-  // Start the mole moving every moleInterval
+  if (countdownTimer !== null) {
+    // Game is running, so manually end it
+    endGame();
+    return;
+  }
+
+  resetGame();
+  randomMole();
+
   moleTimer = setInterval(randomMole, moleInterval);
-
-  // Start the timer countdown every second
   countdownTimer = setInterval(() => {
     timeLeft--;
     timerDisplay.textContent = "Time Left: " + timeLeft;
 
     if (timeLeft <= 0) {
-      clearInterval(moleTimer);
-      clearInterval(countdownTimer);
-      timerDisplay.textContent = "Time Left: 0";
-      alert('Game Over! Your final score is: ' + score);
+      endGame();
     }
   }, 1000);
+
+  startButton.textContent = "Stop Game";
+}
+
+function endGame() {
+  clearInterval(moleTimer);
+  clearInterval(countdownTimer);
+  moleTimer = null;
+  countdownTimer = null;
+
+  const startButton = document.querySelector('button');
+  startButton.textContent = "Start Game";
+
+  endGameCard.innerHTML = `<div class="card-content">
+    <h2>Game Over!</h2>
+    <p>Your final score: ${score}</p>
+    <button onclick="closeEndGameCard()">Close</button>
+  </div>`;
+  endGameCard.style.display = 'flex';
+}
+
+function closeEndGameCard() {
+  endGameCard.style.display = 'none';
+  resetGame();
 }
