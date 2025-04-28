@@ -126,6 +126,16 @@ function whack(event) {
     activeCharacters.delete(index);
     event.target.classList.remove('mole');
   }
+  else {
+    score -= 5;
+    if (score < 0) 
+      score = 0; // Prevent negative score
+    scoreDisplay.textContent = "Score: " + score;
+  }
+  // Prevent whacking if game is paused or not running
+  if (gamePaused || !gameRunning) {
+    return;
+  }
 }
 
 function resetGame() {
