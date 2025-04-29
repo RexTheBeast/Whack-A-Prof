@@ -10,7 +10,7 @@ const endGameCard = document.getElementById("end-game-card");
 /**
  * ─────────────────────────────────────────────────────────────────────────────
  * NAVIGATION BUTTON LISTENERS
- * Wire up your menu / tutorial / leaderboard buttons.
+ * menu / tutorial / leaderboard buttons.
  * ─────────────────────────────────────────────────────────────────────────────
  */
 document.getElementById("play-button").addEventListener("click", () => {
