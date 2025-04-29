@@ -51,6 +51,8 @@ body {
     grid-gap:var(--gap);
     justify-content: center;
     align-items: center;
+    border: 8px solid darkgray;
+    padding: 20px;
   }
 
   .hole {
