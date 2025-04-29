@@ -6,8 +6,42 @@ const config = {
   characterDuration: 2000, // ms
   spawnIntervalMin: 500, // ms
   spawnIntervalMax: 1500, // ms
+  HIGH_SCORES_KEY: 'whackAProfHighScores',
+  MAX_HIGH_SCORES: 10 // Limit leaderboard to top 10
 };
 
+// -- Local Storage for Scores
+function getHighScores() {
+    const scoresJSON = localStorage.getItem(config.HIGH_SCORES_KEY);
+    try {
+        const scores = JSON.parse(scoresJSON);
+        // Ensure it's an array, return empty array if not or null
+        return Array.isArray(scores) ? scores : [];
+    } catch (e) {
+        // If parsing fails, return empty array
+        console.error("Error parsing high scores from localStorage:", e);
+        return [];
+    }
+}
+
+function saveHighScore(newScore) {
+    if (typeof newScore !== 'number' || isNaN(newScore) || newScore <= 0) {
+        // Don't save zero or invalid scores
+        return;
+    }
+
+    const scores = getHighScores();
+    scores.push(newScore);
+    scores.sort((a, b) => b - a); // Sort descending (highest first)
+    const updatedScores = scores.slice(0, config.MAX_HIGH_SCORES); // Keep only top N scores
+
+    try {
+        localStorage.setItem(config.HIGH_SCORES_KEY, JSON.stringify(updatedScores));
+        console.log("High scores saved:", updatedScores);
+    } catch (e) {
+        console.error("Error saving high scores to localStorage:", e);
+    }
+}
 // --- UI Module ---
 const UI = {
   // DOM Elements
@@ -16,6 +50,7 @@ const UI = {
       gameplay: document.getElementById('gameplay'),
       tutorial: document.getElementById('tutorial'),
       highScores: document.getElementById('high-scores'),
+      highScoresList: document.getElementById('score-list'),
       gameBoard: document.getElementById('game'),
       scoreDisplay: document.getElementById('score'),
       timerDisplay: document.getElementById('timer'),
@@ -42,11 +77,21 @@ const UI = {
       this.updateScoreDisplay(0); // Initial display
   },
 
+  /**
+ * ─────────────────────────────────────────────────────────────────────────────
+ * NAVIGATION BUTTON LISTENERS
+ * Wire up your menu / tutorial / leaderboard buttons.
+ * ─────────────────────────────────────────────────────────────────────────────
+ */
   setupEventListeners() {
       this.elements.playButton.addEventListener('click', () => this.showScreen('gameplay'));
       this.elements.tutorialButton.addEventListener('click', () => this.showScreen('tutorial'));
       this.elements.leaderboardButton.addEventListener('click', () => this.showScreen('highScores'));
 
+    /**
+     * Return-to-main-menu buttons.
+     * Each .back-button closes the current overlay and shows the main menu.
+     */
       this.elements.backButtons.forEach(button => {
           button.addEventListener('click', () => this.showScreen('mainMenu'));
       });
@@ -64,16 +109,35 @@ const UI = {
            this.game.togglePause();
       });
 
-      // Event delegation for holes (more efficient than adding listener to each)
+      /**
+        * Handle a click on a hole: award or deduct points, update score display.
+        * @param {MouseEvent} event
+        * @sideEffect Updates `score`, `scoreDisplay.textContent`, and
+        *             may remove `.mole` from the clicked hole.
+         */
       this.elements.gameBoard.addEventListener('click', (event) => {
-          if (event.target.classList.contains('hole')) {
-              const index = parseInt(event.target.dataset.index, 10);
+        if (!this.game.isRunning() || this.game.isPaused()) return; // if the game isn't running/is paused, do nothing
+          
+          const clickedElement = event.target; // stores whatever is clicked
+          let hitMole = false;
+
+          if (clickedElement.classList.contains('mole') && clickedElement.classList.contains('hole')) { // if what is clicked contains both a mole and a hole, register a whack
+              const index = parseInt(clickedElement.dataset.index,10);
               if (!isNaN(index)) {
                   this.game.handleWhack(index);
+                  hitMole = true;
+              } }
+                
+              if (!hitMole){ // otherwise, register a miss or timeout and apply penalty
+              this.game.handleMiss();
               }
-          }
+          
       });
   },
+  /**
+  * Hide all primary UI overlays: main menu, tutorial, leaderboard, gameplay.
+  * @sideEffect Toggles the `.hidden` class on each overlay element.
+  */
 
   hideAllScreens() {
       this.elements.mainMenu.classList.add('hidden');
@@ -81,11 +145,15 @@ const UI = {
       this.elements.highScores.classList.add('hidden');
       this.elements.gameplay.classList.add('hidden');
   },
-
+     /**
+            * Show the main menu overlay and hide all others.
+            * @sideEffect Calls hideAllScreens(), then removes `.hidden` from respective screen.
+             */
   showScreen(screenName) {
       this.hideAllScreens();
       switch (screenName) {
           case 'mainMenu':
+          
               this.elements.mainMenu.classList.remove('hidden');
               break;
           case 'gameplay':
@@ -101,10 +169,16 @@ const UI = {
               this.elements.tutorial.classList.remove('hidden');
               break;
           case 'highScores':
+              this.displayHighScores();
               this.elements.highScores.classList.remove('hidden');
               break;
       }
   },
+  /**
+ * Recalculate grid hole size and gap based on viewport dimensions,
+ * then update CSS variables `--hole` and `--gap`. Also resets timer display.
+ * @sideEffect Updates `timerDisplay.textContent` and CSS vars on `<html>`.
+ */
 
   scaleBoard() {
       const maxSide = Math.min(
@@ -118,6 +192,12 @@ const UI = {
       document.documentElement.style.setProperty('--gap', `${gapSize}px`);
   },
 
+  /**
+ * Build a `rows × cols` grid of clickable hole `<div>`s inside `game`.
+ * @param {number} rows  Number of grid rows.
+ * @param {number} cols  Number of grid columns.
+ * @sideEffect Clears `game.innerHTML`, sets grid template, and appends holes.
+ */
   createHoles(rows, cols) {
       this.elements.gameBoard.innerHTML = ''; // Clear existing
       this.elements.holes = []; // Clear cache
@@ -201,7 +281,36 @@ const UI = {
            buttonElement.textContent = text;
            buttonElement.disabled = disabled;
       }
-  }
+  },
+  displayHighScores() {
+    const scores = getHighScores(); // Uses the helper function
+    // Make sure we're using the correct reference here
+    const listElement = this.elements.highScoresList;
+
+    // Check if the list element was found correctly
+    if (!listElement) {
+        console.error("Score list element (#score-list) not found in UI.elements!");
+        // Optionally try to find it again, though it should be in elements
+        // listElement = document.getElementById('score-list');
+        // if (!listElement) return; // Still not found, exit
+        return;
+    }
+
+    // This line ONLY clears the content of the <ol> element
+    listElement.innerHTML = '';
+
+    if (scores.length === 0) {
+        listElement.innerHTML = '<li>No high scores yet!</li>';
+    } else {
+        scores.forEach((score, index) => {
+            const listItem = document.createElement('li');
+            listItem.textContent = `${score}`; // Score
+            listElement.appendChild(listItem);
+        });
+    }
+},
+
+
 };
 
 // --- Game Class ---
@@ -222,6 +331,11 @@ class Game {
   spawnTimeoutId = null;
 
   // --- Core Logic Methods ---
+  /**
+    * Start or stop a game round. On first call, resets state, begins spawn loop and countdown.
+    * On second call (while `gameRunning`), ends the round immediately.
+    * @sideEffect Toggles `gameRunning`, updates buttons, and manages timers.
+    */
   start() {
       if (this.gameRunning) return; // Prevent multiple starts
 
@@ -240,6 +354,10 @@ class Game {
       this._startTimer();
   }
 
+  /**
+ * End the current game: clear timers, show the “Game Over” card, and display final score.
+ * @sideEffect Clears `nextCharacterTimeout`, `countdownTimer`, toggles UI elements.
+ */
   stop() { // Renamed from endGame for clarity (can be triggered by user or timer)
       if (!this.gameRunning && !this.gamePaused) return; // Do nothing if already stopped
 
@@ -250,15 +368,21 @@ class Game {
       this.ui.clearAllMoles(); // Clear visuals
       this.activeMoles.clear(); // Clear internal tracking
 
+      
+
       // Only show end game card if it wasn't a pause->stop scenario
       // Or maybe always show it when stopped? Let's show it.
       this.ui.displayEndGame(this.score);
+      saveHighScore(this.score);
 
       // Reset button states for next game potential
       this.ui.setButtonState('start', 'Start Game');
       this.ui.setButtonState('pause', 'Pause', true); // Disable pause
   }
-
+  /**
+ * Reset all game state to initial values, clear timers, and hide game over card.
+ * @sideEffect Clears timeouts/intervals, resets flags, removes moles, hides overlay.
+ */
   reset() {
       this.score = 0;
       this.timeLeft = this.config.availableTime;
@@ -293,25 +417,33 @@ class Game {
       // Update timer display regardless
       this.ui.updateTimerDisplay(this.timeLeft, this.gamePaused);
   }
-
+/**
+ * Handle a successful click on a mole: award points, update score display.
+ * @param {MouseEvent} event
+ * @sideEffect Updates `score`, `scoreDisplay.textContent`, and
+ *             may remove `.mole` from the clicked hole.
+ */
   handleWhack(index) {
-      // Only register whack if game is running and not paused
-      if (!this.gameRunning || this.gamePaused) return;
-
-      if (this.activeMoles.has(index)) {
           this.score += 10;
           this.activeMoles.delete(index);
           this.ui.hideMole(index); // Let UI handle visuals
           this.ui.updateScoreDisplay(this.score);
           // Add sound effect call here: this.ui.playSound('whack');
-      }
-      else if (this.activeMoles.has(index) === false) {
-          this.score -= 5; // Penalty for missed whack
-          this.ui.updateScoreDisplay(this.score);
-          // this.ui.missedMole(index); // Visual feedback for missed whack
-          // Add sound effect call here: this.ui.playSound('miss');
-      }
+
   }
+    /**
+        * Handle an unsuccessful click on a hole or the game board: deduct points, update score display.
+        * @param {MouseEvent} event
+        * @sideEffect Updates `score`, `scoreDisplay.textContent` 
+         */
+  handleMiss(){
+    this.score -= 5; // Penalty for missed whack
+    if (this.score < 0) this.score = 0; // minimum score is zero
+    this.ui.updateScoreDisplay(this.score);
+    // Add sound effect call here: this.ui.playSound('miss');
+    // this.ui.missedMole(index); // Visual feedback for missed whack
+  }
+ 
 
   // --- Internal Helper Methods ---
   _tick() { // Called by the interval timer
@@ -324,7 +456,12 @@ class Game {
           this.stop(); // Game over due to time
       }
   }
-
+  /**
+ * Spawn a mole in a random empty hole, keep it visible for `characterDuration`,
+ * then remove it. Recursively schedules the next spawn at a random interval.
+ * @sideEffect Mutates `activeCharacters`, adds/removes `.mole` classes, and
+ *             sets `nextCharacterTimeout`.
+ */
   _spawnMole() {
       // Find available holes (indices not in activeMoles)
       const totalHoles = this.config.height * this.config.width;
@@ -349,8 +486,7 @@ class Game {
                if (this.gameRunning && !this.gamePaused && this.activeMoles.has(holeIndex)) {
 
                     // Penalty for not whacking
-                    this.score -= 5; // Adjust score for missed whack
-                    this.ui.updateScoreDisplay(this.score);
+                    this.handleMiss();
                     // Visual feedback call here: this.ui.showExpiryFeedback(holeIndex);
                     // Add sound effect call here: this.ui.playSound('expire');
                     this.activeMoles.delete(holeIndex);
