@@ -181,10 +181,11 @@ A fast-paced game in which doors open at random and reveal professors. Players c
 \subsection{Functional Requirements}
 \begin{itemize}
   \item \textbf{REQ-1.1}: Characters appear at uniformly random intervals of 0.5–1.5 s.
-  \item \textbf{REQ-1.2}: Trustee explosion animation must visibly overlay the screen for $\approx$ 1 s and play an accompanying sound effect.
+  \item \textbf{REQ-1.2}: Trustee explosion animation must visibly overlay the screen for $\approx$ 1 s and play an accompanying scream sound effect.
   \item \textbf{REQ-1.3}: Characters vanish after 2 s if not clicked.
-  \item \textbf{REQ-2.1}: Score updates in real-time after each interaction.
+  \item \textbf{REQ-2.1}: Score updates in real-time and after each interaction.
   \item \textbf{REQ-2.2}: Top scores are stored via Local Storage.
+  \item \textbf{REQ-2.3}: Sound effect plays on character clicks, misses, and trustee hits. Specific sound to be determined during implementation.
 \end{itemize}
 
 % ====================== 5  NON-FUNCTIONAL REQS =============================
@@ -211,15 +212,15 @@ No sensitive data processed. All data remain local to the browser.
   \item Provide clear feedback for unsupported browsers.
 \end{itemize}
 
-\section{Future Enhancements}
-\begin{itemize}
-  \item Multiplayer mode
-  \item Additional characters and effects
-\end{itemize}
+% \section{Future Enhancements}
+% \begin{itemize}
+%   \item Multiplayer mode
+%   \item Additional characters and effects
+% \end{itemize}
 
 % ====================== 6  OTHER REQUIREMENTS ==============================
-\chapter{Other Requirements}
-None at present.
+% \chapter{Other Requirements}
+% None at present.
 
 % ====================== APPENDICES =========================================
 \appendix
@@ -235,7 +236,7 @@ None at present.
 %\chapter{Analysis Models}
 % Placeholder for future UML diagrams or other models.
 
-\chapter{To Be Determined (TBD)}
+\chapter{To Be Determined}
 \begin{itemize}
   \item Final UI mock-ups and design specifics
   \item Final JavaScript library selection
