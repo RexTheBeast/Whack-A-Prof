@@ -66,12 +66,22 @@ const UI = {
 
       // Event delegation for holes (more efficient than adding listener to each)
       this.elements.gameBoard.addEventListener('click', (event) => {
-          if (event.target.classList.contains('hole')) {
-              const index = parseInt(event.target.dataset.index, 10);
+        if (!this.game.isRunning() || this.game.isPaused()) return; // if the game isn't running/is paused, do nothing
+          
+          const clickedElement = event.target; // stores whatever is clicked
+          let hitMole = false;
+
+          if (clickedElement.classList.contains('mole') && clickedElement.classList.contains('hole')) { // if what is clicked contains both a mole and a hole, register a whack
+              const index = parseInt(clickedElement.dataset.index,10);
               if (!isNaN(index)) {
                   this.game.handleWhack(index);
+                  hitMole = true;
+              } }
+                
+              if (!hitMole){ // otherwise, register a miss or timeout and apply penalty
+              this.game.handleMiss();
               }
-          }
+          
       });
   },
 
@@ -295,23 +305,21 @@ class Game {
   }
 
   handleWhack(index) {
-      // Only register whack if game is running and not paused
-      if (!this.gameRunning || this.gamePaused) return;
-
-      if (this.activeMoles.has(index)) {
           this.score += 10;
           this.activeMoles.delete(index);
           this.ui.hideMole(index); // Let UI handle visuals
           this.ui.updateScoreDisplay(this.score);
           // Add sound effect call here: this.ui.playSound('whack');
-      }
-      else if (this.activeMoles.has(index) === false) {
-          this.score -= 5; // Penalty for missed whack
-          this.ui.updateScoreDisplay(this.score);
-          // this.ui.missedMole(index); // Visual feedback for missed whack
-          // Add sound effect call here: this.ui.playSound('miss');
-      }
   }
+  
+  handleMiss(){
+    this.score -= 5; // Penalty for missed whack
+    if (this.score < 0) this.score = 0; // minimum score is zero
+    this.ui.updateScoreDisplay(this.score);
+    // Add sound effect call here: this.ui.playSound('miss');
+    // this.ui.missedMole(index); // Visual feedback for missed whack
+  }
+ 
 
   // --- Internal Helper Methods ---
   _tick() { // Called by the interval timer
@@ -349,8 +357,7 @@ class Game {
                if (this.gameRunning && !this.gamePaused && this.activeMoles.has(holeIndex)) {
 
                     // Penalty for not whacking
-                    this.score -= 5; // Adjust score for missed whack
-                    this.ui.updateScoreDisplay(this.score);
+                    this.handleMiss();
                     // Visual feedback call here: this.ui.showExpiryFeedback(holeIndex);
                     // Add sound effect call here: this.ui.playSound('expire');
                     this.activeMoles.delete(holeIndex);
