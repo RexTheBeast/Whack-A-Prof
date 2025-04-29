@@ -1,13 +1,49 @@
-const mainMenu = document.getElementById('main-menu');
-const game = document.getElementById('game');
-const gameplay = document.getElementById('gameplay');
-const tutorial = document.getElementById('tutorial');
-const highScores = document.getElementById('high-scores');
-const scoreDisplay = document.getElementById('score');
-const timerDisplay = document.getElementById('timer');
-const endGameCard = document.getElementById('end-game-card');
+const mainMenu = document.getElementById("main-menu");
+const game = document.getElementById("game");
+const gameplay = document.getElementById("gameplay");
+const tutorial = document.getElementById("tutorial");
+const highScores = document.getElementById("high-scores");
+const scoreDisplay = document.getElementById("score");
+const timerDisplay = document.getElementById("timer");
+const endGameCard = document.getElementById("end-game-card");
+
+/**
+ * ─────────────────────────────────────────────────────────────────────────────
+ * NAVIGATION BUTTON LISTENERS
+ * Wire up your menu / tutorial / leaderboard buttons.
+ * ─────────────────────────────────────────────────────────────────────────────
+ */
+document.getElementById("play-button").addEventListener("click", () => {
+  hideAllScreens();
+  gameplay.classList.remove("hidden");
+});
+
+document.getElementById("tutorial-button").addEventListener("click", () => {
+  hideAllScreens();
+  tutorial.classList.remove("hidden");
+});
+
+document.getElementById("leaderboard-button").addEventListener("click", () => {
+  hideAllScreens();
+  highScores.classList.remove("hidden");
+});
+
+/**
+ * Return-to-main-menu buttons.
+ * Each .back-button closes the current overlay and shows the main menu.
+ */
+document.querySelectorAll(".back-button").forEach((button) => {
+  button.addEventListener("click", showMainMenu);
+});
+
+/**
+ * ─────────────────────────────────────────────────────────────────────────────
+ * GAME STATE VARIABLES
+ * Configuration constants and runtime flags used throughout the game logic.
+ * ─────────────────────────────────────────────────────────────────────────────
+ */
 const availableTime = 30;
-const height = 4; 
+const height = 4;
 const width = 4;
 const characterDuration = 2000; // How long each character stays visible (ms)
 let score = 0;
@@ -18,96 +54,93 @@ let timeLeft = availableTime;
 let gamePaused = false;
 let nextCharacterTimeout = null;
 
-// Function to hide all screens
+/**
+ * Hide all primary UI overlays: main menu, tutorial, leaderboard, gameplay.
+ * @sideEffect Toggles the `.hidden` class on each overlay element.
+ */
 function hideAllScreens() {
-  mainMenu.classList.add('hidden');
-  tutorial.classList.add('hidden');
-  highScores.classList.add('hidden');
-  gameplay.classList.add('hidden');
+  mainMenu.classList.add("hidden");
+  tutorial.classList.add("hidden");
+  highScores.classList.add("hidden");
+  gameplay.classList.add("hidden");
 }
 
-// Function to show the main menu
+/**
+ * Show the main menu overlay and hide all others.
+ * @sideEffect Calls hideAllScreens(), then removes `.hidden` from `mainMenu`.
+ */
 function showMainMenu() {
   hideAllScreens();
-  mainMenu.classList.remove('hidden');
+  mainMenu.classList.remove("hidden");
 }
 
-// Set up button listeners
-document.getElementById('play-button').addEventListener('click', () => {
-  hideAllScreens();
-  gameplay.classList.remove('hidden');
-});
-
-document.getElementById('tutorial-button').addEventListener('click', () => {
-  hideAllScreens();
-  tutorial.classList.remove('hidden');
-});
-
-document.getElementById('leaderboard-button').addEventListener('click', () => {
-  hideAllScreens();
-  highScores.classList.remove('hidden');
-});
-
-// Back buttons return to main menu
-document.querySelectorAll('.back-button').forEach(button => {
-  button.addEventListener('click', showMainMenu);
-});
-
-// Start by showing only main menu
-showMainMenu();
-
-
+/**
+ * Recalculate grid hole size and gap based on viewport dimensions,
+ * then update CSS variables `--hole` and `--gap`. Also resets timer display.
+ * @sideEffect Updates `timerDisplay.textContent` and CSS vars on `<html>`.
+ */
 function scaleBoard() {
   timerDisplay.textContent = "Time Left: " + availableTime;
   const maxSide = Math.min(
     window.innerWidth * 0.75,
     window.innerHeight * 0.6667
   );
-  const hole = maxSide / Math.max(height + 2*0.25, width + 2*0.25);
+  const hole = maxSide / Math.max(height + 2 * 0.25, width + 2 * 0.25);
   const gap = hole * 0.15;
 
-  document.documentElement.style.setProperty('--hole', hole + 'px');
-  document.documentElement.style.setProperty('--gap', gap + 'px');
+  document.documentElement.style.setProperty("--hole", hole + "px");
+  document.documentElement.style.setProperty("--gap", gap + "px");
 }
 
-window.addEventListener('load'   , () => { createHoles(height, width); scaleBoard(); });
-window.addEventListener('resize' , scaleBoard);
-
+/**
+ * Build a `rows × cols` grid of clickable hole `<div>`s inside `game`.
+ * @param {number} rows  Number of grid rows.
+ * @param {number} cols  Number of grid columns.
+ * @sideEffect Clears `game.innerHTML`, sets grid template, and appends holes.
+ */
 function createHoles(rows, cols) {
-  game.innerHTML = '';
+  game.innerHTML = "";
   const totalHoles = rows * cols;
   game.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
   game.style.gridTemplateRows = `repeat(${rows}, 1fr)`;
-  
+
   for (let i = 0; i < totalHoles; i++) {
-    const hole = document.createElement('div');
-    hole.classList.add('hole');
+    const hole = document.createElement("div");
+    hole.classList.add("hole");
     hole.dataset.index = i;
-    hole.addEventListener('click', whack);
+    hole.addEventListener("click", whack);
     game.appendChild(hole);
   }
 }
 
+/**
+ * Spawn a mole in a random empty hole, keep it visible for `characterDuration`,
+ * then remove it. Recursively schedules the next spawn at a random interval.
+ * @sideEffect Mutates `activeCharacters`, adds/removes `.mole` classes, and
+ *             sets `nextCharacterTimeout`.
+ */
 function spawnCharacter() {
   if (gamePaused || !gameRunning) return;
-  
-  const holes = document.querySelectorAll('.hole');
-  const availableHoles = [...holes].filter((hole, index) => !activeCharacters.has(index));
-  
+
+  const holes = document.querySelectorAll(".hole");
+  const availableHoles = [...holes].filter(
+    (hole, index) => !activeCharacters.has(index)
+  );
+
   // Only spawn if there are available holes
   if (availableHoles.length > 0) {
     const randomHoleIndex = Math.floor(Math.random() * availableHoles.length);
     const selectedHole = availableHoles[randomHoleIndex];
     const holeIndex = parseInt(selectedHole.dataset.index);
-    
+
     // Add mole to the selected hole
-    selectedHole.classList.add('mole');
+    selectedHole.classList.add("mole");
     activeCharacters.add(holeIndex);
-    
+
     // Remove mole after characterDuration milliseconds
     setTimeout(() => {
       if (!gamePaused) {
-        selectedHole.classList.remove('mole');
+        selectedHole.classList.remove("mole");
         activeCharacters.delete(holeIndex);
       }
     }, characterDuration);
@@ -118,18 +151,22 @@ function spawnCharacter() {
   nextCharacterTimeout = setTimeout(spawnCharacter, nextInterval);
 }
 
+/**
+ * Handle a click on a hole: award or deduct points, update score display.
+ * @param {MouseEvent} event
+ * @sideEffect Updates `score`, `scoreDisplay.textContent`, and
+ *             may remove `.mole` from the clicked hole.
+ */
 function whack(event) {
   const index = parseInt(event.target.dataset.index);
   if (activeCharacters.has(index)) {
     score += 10;
     scoreDisplay.textContent = "Score: " + score;
     activeCharacters.delete(index);
-    event.target.classList.remove('mole');
-  }
-  else {
+    event.target.classList.remove("mole");
+  } else {
     score -= 5;
-    if (score < 0) 
-      score = 0; // Prevent negative score
+    if (score < 0) score = 0; // Prevent negative score
     scoreDisplay.textContent = "Score: " + score;
   }
   // Prevent whacking if game is paused or not running
@@ -138,6 +175,10 @@ function whack(event) {
   }
 }
 
+/**
+ * Reset all game state to initial values, clear timers, and hide game over card.
+ * @sideEffect Clears timeouts/intervals, resets flags, removes moles, hides overlay.
+ */
 function resetGame() {
   score = 0;
   timeLeft = availableTime;
@@ -152,17 +193,21 @@ function resetGame() {
   gamePaused = false;
 
   // Clear any active characters
-  const holes = document.querySelectorAll('.hole');
-  holes.forEach(hole => hole.classList.remove('mole'));
+  const holes = document.querySelectorAll(".hole");
+  holes.forEach((hole) => hole.classList.remove("mole"));
   activeCharacters.clear();
-  
-  endGameCard.style.display = 'none';
+
+  endGameCard.style.display = "none";
 }
 
-
+/**
+ * Start or stop a game round. On first call, resets state, begins spawn loop and countdown.
+ * On second call (while `gameRunning`), ends the round immediately.
+ * @sideEffect Toggles `gameRunning`, updates buttons, and manages timers.
+ */
 function startGame() {
-  const startButton = document.querySelector('.start-game-button');
-  const pauseButton = document.querySelector('.pause-button');
+  const startButton = document.querySelector(".start-game-button");
+  const pauseButton = document.querySelector(".pause-button");
   pauseButton.style.display = "inline-block";
   if (gameRunning) {
     // Game is running, so manually end it
@@ -172,10 +217,10 @@ function startGame() {
 
   resetGame();
   gameRunning = true;
-  
+
   // Start spawning characters
   spawnCharacter();
-  
+
   countdownTimer = setInterval(() => {
     timeLeft--;
     timerDisplay.textContent = "Time Left: " + timeLeft;
@@ -188,16 +233,20 @@ function startGame() {
   startButton.textContent = "Stop Game";
 }
 
+/**
+ * End the current game: clear timers, show the “Game Over” card, and display final score.
+ * @sideEffect Clears `nextCharacterTimeout`, `countdownTimer`, toggles UI elements.
+ */
 function endGame() {
   clearTimeout(nextCharacterTimeout);
   clearInterval(countdownTimer);
   nextCharacterTimeout = null;
   countdownTimer = null;
   gameRunning = false;
-  const pauseButton = document.querySelector('.pause-button');
+  const pauseButton = document.querySelector(".pause-button");
   pauseButton.style.display = "none";
 
-  const startButton = document.querySelector('.start-game-button');
+  const startButton = document.querySelector(".start-game-button");
   startButton.textContent = "Start Game";
 
   endGameCard.innerHTML = `<div class="card-content">
@@ -205,16 +254,24 @@ function endGame() {
     <p>Your final score: ${score}</p>
     <button onclick="closeEndGameCard()">Close</button>
   </div>`;
-  endGameCard.style.display = 'flex';
+  endGameCard.style.display = "flex";
 }
 
+/**
+ * Hide the end-game overlay and reset the game state.
+ * @sideEffect Calls resetGame() and hides the overlay.
+ */
 function closeEndGameCard() {
-  endGameCard.style.display = 'none';
+  endGameCard.style.display = "none";
   resetGame();
 }
 
+/**
+ * Toggle pause state: stops or resumes spawning and countdown.
+ * @sideEffect Clears or sets timers, updates `pauseButton` label and timer text.
+ */
 function togglePause() {
-  const pauseButton = document.querySelector('.pause-button');
+  const pauseButton = document.querySelector(".pause-button");
 
   if (gamePaused) {
     // Unpause the game
@@ -229,7 +286,10 @@ function togglePause() {
       }
     }, 1000);
     pauseButton.textContent = "Pause";
-    timerDisplay.textContent = timerDisplay.textContent.replace(" (Paused)", "");
+    timerDisplay.textContent = timerDisplay.textContent.replace(
+      " (Paused)",
+      ""
+    );
   } else {
     // Pause the game
     clearTimeout(nextCharacterTimeout);
@@ -242,4 +302,12 @@ function togglePause() {
   }
 }
 
-document.querySelector('.pause-button').addEventListener('click', togglePause);
+window.addEventListener("load", () => {
+  createHoles(height, width);
+  scaleBoard();
+});
+window.addEventListener("resize", scaleBoard);
+
+document.querySelector(".pause-button").addEventListener("click", togglePause);
+
+showMainMenu();
