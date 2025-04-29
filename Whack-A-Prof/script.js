@@ -6,8 +6,42 @@ const config = {
   characterDuration: 2000, // ms
   spawnIntervalMin: 500, // ms
   spawnIntervalMax: 1500, // ms
+  HIGH_SCORES_KEY: 'whackAProfHighScores',
+  MAX_HIGH_SCORES: 10 // Limit leaderboard to top 10
 };
 
+// -- Local Storage for Scores
+function getHighScores() {
+    const scoresJSON = localStorage.getItem(config.HIGH_SCORES_KEY);
+    try {
+        const scores = JSON.parse(scoresJSON);
+        // Ensure it's an array, return empty array if not or null
+        return Array.isArray(scores) ? scores : [];
+    } catch (e) {
+        // If parsing fails, return empty array
+        console.error("Error parsing high scores from localStorage:", e);
+        return [];
+    }
+}
+
+function saveHighScore(newScore) {
+    if (typeof newScore !== 'number' || isNaN(newScore) || newScore <= 0) {
+        // Don't save zero or invalid scores
+        return;
+    }
+
+    const scores = getHighScores();
+    scores.push(newScore);
+    scores.sort((a, b) => b - a); // Sort descending (highest first)
+    const updatedScores = scores.slice(0, config.MAX_HIGH_SCORES); // Keep only top N scores
+
+    try {
+        localStorage.setItem(config.HIGH_SCORES_KEY, JSON.stringify(updatedScores));
+        console.log("High scores saved:", updatedScores);
+    } catch (e) {
+        console.error("Error saving high scores to localStorage:", e);
+    }
+}
 // --- UI Module ---
 const UI = {
   // DOM Elements
@@ -16,6 +50,7 @@ const UI = {
       gameplay: document.getElementById('gameplay'),
       tutorial: document.getElementById('tutorial'),
       highScores: document.getElementById('high-scores'),
+      highScoresList: document.getElementById('score-list'),
       gameBoard: document.getElementById('game'),
       scoreDisplay: document.getElementById('score'),
       timerDisplay: document.getElementById('timer'),
@@ -111,6 +146,7 @@ const UI = {
               this.elements.tutorial.classList.remove('hidden');
               break;
           case 'highScores':
+              this.displayHighScores();
               this.elements.highScores.classList.remove('hidden');
               break;
       }
@@ -211,7 +247,36 @@ const UI = {
            buttonElement.textContent = text;
            buttonElement.disabled = disabled;
       }
-  }
+  },
+  displayHighScores() {
+    const scores = getHighScores(); // Uses the helper function
+    // Make sure we're using the correct reference here
+    const listElement = this.elements.highScoresList;
+
+    // Check if the list element was found correctly
+    if (!listElement) {
+        console.error("Score list element (#score-list) not found in UI.elements!");
+        // Optionally try to find it again, though it should be in elements
+        // listElement = document.getElementById('score-list');
+        // if (!listElement) return; // Still not found, exit
+        return;
+    }
+
+    // This line ONLY clears the content of the <ol> element
+    listElement.innerHTML = '';
+
+    if (scores.length === 0) {
+        listElement.innerHTML = '<li>No high scores yet!</li>';
+    } else {
+        scores.forEach((score, index) => {
+            const listItem = document.createElement('li');
+            listItem.textContent = `${score}`; // Score
+            listElement.appendChild(listItem);
+        });
+    }
+},
+
+
 };
 
 // --- Game Class ---
@@ -260,9 +325,12 @@ class Game {
       this.ui.clearAllMoles(); // Clear visuals
       this.activeMoles.clear(); // Clear internal tracking
 
+      
+
       // Only show end game card if it wasn't a pause->stop scenario
       // Or maybe always show it when stopped? Let's show it.
       this.ui.displayEndGame(this.score);
+      saveHighScore(this.score);
 
       // Reset button states for next game potential
       this.ui.setButtonState('start', 'Start Game');
@@ -310,6 +378,7 @@ class Game {
           this.ui.hideMole(index); // Let UI handle visuals
           this.ui.updateScoreDisplay(this.score);
           // Add sound effect call here: this.ui.playSound('whack');
+
   }
   
   handleMiss(){
