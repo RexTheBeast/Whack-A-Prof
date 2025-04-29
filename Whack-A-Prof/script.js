@@ -77,11 +77,21 @@ const UI = {
       this.updateScoreDisplay(0); // Initial display
   },
 
+  /**
+ * ─────────────────────────────────────────────────────────────────────────────
+ * NAVIGATION BUTTON LISTENERS
+ * Wire up your menu / tutorial / leaderboard buttons.
+ * ─────────────────────────────────────────────────────────────────────────────
+ */
   setupEventListeners() {
       this.elements.playButton.addEventListener('click', () => this.showScreen('gameplay'));
       this.elements.tutorialButton.addEventListener('click', () => this.showScreen('tutorial'));
       this.elements.leaderboardButton.addEventListener('click', () => this.showScreen('highScores'));
 
+    /**
+     * Return-to-main-menu buttons.
+     * Each .back-button closes the current overlay and shows the main menu.
+     */
       this.elements.backButtons.forEach(button => {
           button.addEventListener('click', () => this.showScreen('mainMenu'));
       });
@@ -99,7 +109,12 @@ const UI = {
            this.game.togglePause();
       });
 
-      // Event delegation for holes (more efficient than adding listener to each)
+      /**
+        * Handle a click on a hole: award or deduct points, update score display.
+        * @param {MouseEvent} event
+        * @sideEffect Updates `score`, `scoreDisplay.textContent`, and
+        *             may remove `.mole` from the clicked hole.
+         */
       this.elements.gameBoard.addEventListener('click', (event) => {
         if (!this.game.isRunning() || this.game.isPaused()) return; // if the game isn't running/is paused, do nothing
           
@@ -119,6 +134,10 @@ const UI = {
           
       });
   },
+  /**
+  * Hide all primary UI overlays: main menu, tutorial, leaderboard, gameplay.
+  * @sideEffect Toggles the `.hidden` class on each overlay element.
+  */
 
   hideAllScreens() {
       this.elements.mainMenu.classList.add('hidden');
@@ -126,11 +145,15 @@ const UI = {
       this.elements.highScores.classList.add('hidden');
       this.elements.gameplay.classList.add('hidden');
   },
-
+     /**
+            * Show the main menu overlay and hide all others.
+            * @sideEffect Calls hideAllScreens(), then removes `.hidden` from respective screen.
+             */
   showScreen(screenName) {
       this.hideAllScreens();
       switch (screenName) {
           case 'mainMenu':
+          
               this.elements.mainMenu.classList.remove('hidden');
               break;
           case 'gameplay':
@@ -151,6 +174,11 @@ const UI = {
               break;
       }
   },
+  /**
+ * Recalculate grid hole size and gap based on viewport dimensions,
+ * then update CSS variables `--hole` and `--gap`. Also resets timer display.
+ * @sideEffect Updates `timerDisplay.textContent` and CSS vars on `<html>`.
+ */
 
   scaleBoard() {
       const maxSide = Math.min(
@@ -164,6 +192,12 @@ const UI = {
       document.documentElement.style.setProperty('--gap', `${gapSize}px`);
   },
 
+  /**
+ * Build a `rows × cols` grid of clickable hole `<div>`s inside `game`.
+ * @param {number} rows  Number of grid rows.
+ * @param {number} cols  Number of grid columns.
+ * @sideEffect Clears `game.innerHTML`, sets grid template, and appends holes.
+ */
   createHoles(rows, cols) {
       this.elements.gameBoard.innerHTML = ''; // Clear existing
       this.elements.holes = []; // Clear cache
@@ -297,6 +331,11 @@ class Game {
   spawnTimeoutId = null;
 
   // --- Core Logic Methods ---
+  /**
+    * Start or stop a game round. On first call, resets state, begins spawn loop and countdown.
+    * On second call (while `gameRunning`), ends the round immediately.
+    * @sideEffect Toggles `gameRunning`, updates buttons, and manages timers.
+    */
   start() {
       if (this.gameRunning) return; // Prevent multiple starts
 
@@ -315,6 +354,10 @@ class Game {
       this._startTimer();
   }
 
+  /**
+ * End the current game: clear timers, show the “Game Over” card, and display final score.
+ * @sideEffect Clears `nextCharacterTimeout`, `countdownTimer`, toggles UI elements.
+ */
   stop() { // Renamed from endGame for clarity (can be triggered by user or timer)
       if (!this.gameRunning && !this.gamePaused) return; // Do nothing if already stopped
 
@@ -336,7 +379,10 @@ class Game {
       this.ui.setButtonState('start', 'Start Game');
       this.ui.setButtonState('pause', 'Pause', true); // Disable pause
   }
-
+  /**
+ * Reset all game state to initial values, clear timers, and hide game over card.
+ * @sideEffect Clears timeouts/intervals, resets flags, removes moles, hides overlay.
+ */
   reset() {
       this.score = 0;
       this.timeLeft = this.config.availableTime;
@@ -371,7 +417,12 @@ class Game {
       // Update timer display regardless
       this.ui.updateTimerDisplay(this.timeLeft, this.gamePaused);
   }
-
+/**
+ * Handle a successful click on a mole: award points, update score display.
+ * @param {MouseEvent} event
+ * @sideEffect Updates `score`, `scoreDisplay.textContent`, and
+ *             may remove `.mole` from the clicked hole.
+ */
   handleWhack(index) {
           this.score += 10;
           this.activeMoles.delete(index);
@@ -380,7 +431,11 @@ class Game {
           // Add sound effect call here: this.ui.playSound('whack');
 
   }
-  
+    /**
+        * Handle an unsuccessful click on a hole or the game board: deduct points, update score display.
+        * @param {MouseEvent} event
+        * @sideEffect Updates `score`, `scoreDisplay.textContent` 
+         */
   handleMiss(){
     this.score -= 5; // Penalty for missed whack
     if (this.score < 0) this.score = 0; // minimum score is zero
@@ -401,7 +456,12 @@ class Game {
           this.stop(); // Game over due to time
       }
   }
-
+  /**
+ * Spawn a mole in a random empty hole, keep it visible for `characterDuration`,
+ * then remove it. Recursively schedules the next spawn at a random interval.
+ * @sideEffect Mutates `activeCharacters`, adds/removes `.mole` classes, and
+ *             sets `nextCharacterTimeout`.
+ */
   _spawnMole() {
       // Find available holes (indices not in activeMoles)
       const totalHoles = this.config.height * this.config.width;
