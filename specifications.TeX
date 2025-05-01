@@ -188,6 +188,38 @@ A fast-paced game in which doors open at random and reveal professors. Players c
   \item \textbf{REQ-2.3}: Sound effect plays on character clicks, misses, and trustee hits. Specific sound to be determined during implementation.
 \end{itemize}
 
+\section{Audio and Sound Effects}
+
+\subsection{Description}
+The game implements a comprehensive sound system to provide audio feedback for game events and enhance the user experience. All sounds follow a consistent style that matches the game's lighthearted theme.
+
+\subsection{Stimulus/Response Sequences}
+\begin{enumerate}
+  \item Game start: Plays introductory sound.
+  \item Professor hit: Plays "hit" sound.
+  \item Miss: Plays "miss" sound.
+  \item Trustee hit: Plays unique "explosion" sound with scream effect.
+  \item Game over: Plays concluding sound.
+  \item New high score: Plays celebratory sound.
+\end{enumerate}
+
+\subsection{Functional Requirements}
+\begin{itemize}
+  \item \textbf{REQ-3.1}: Game must provide audio feedback for all major user interactions and game events.
+  \item \textbf{REQ-3.2}: Distinct sounds must play for:
+    \begin{itemize}
+      \item Game start
+      \item Successful professor hits
+      \item Missed attempts
+      \item Trustee character hits (unique explosion sound)
+      \item Game over
+      \item Achievement of new high score
+    \end{itemize}
+  \item \textbf{REQ-3.3}: Sound effects must synchronize with their corresponding visual events with latency $\leq$ 50 ms.
+  \item \textbf{REQ-3.4}: Game must include a mute/unmute toggle button that persists user preference across sessions via Local Storage.
+  \item \textbf{REQ-3.5}: Volume level must be consistent across all sound effects to prevent unexpected loud sounds.
+\end{itemize}
+
 % ====================== 5  NON-FUNCTIONAL REQS =============================
 \chapter{Non-functional Requirements}
 
@@ -210,6 +242,17 @@ No sensitive data processed. All data remain local to the browser.
 \begin{itemize}
   \item Detect and report Local Storage quota issues.
   \item Provide clear feedback for unsupported browsers.
+\end{itemize}
+
+\section{Audio Requirements}
+\begin{itemize}
+  \item \textbf{Sound Format}: All audio files must be in MP3 format with a fallback to WAV format for maximum browser compatibility.
+  \item \textbf{File Size}: Individual sound effect files must not exceed 100 KB to ensure quick loading times.
+  \item \textbf{Latency}: Audio playback must begin within 50 ms of the triggering event to maintain synchronization with visual feedback.
+  \item \textbf{Accessibility}: Game must remain fully playable with audio disabled.
+  \item \textbf{Volume Control}: In addition to mute/unmute functionality, the game should provide volume adjustment capability, with volume setting persisted in Local Storage.
+  \item \textbf{Memory Usage}: Audio system must efficiently pre-load and cache sound effects to prevent performance degradation during gameplay.
+  \item \textbf{Fallback Mechanism}: The game must gracefully handle scenarios where audio playback is not supported or permission is denied by the browser.
 \end{itemize}
 
 % \section{Future Enhancements}
