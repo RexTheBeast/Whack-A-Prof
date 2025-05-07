@@ -1,0 +1,296 @@
+\documentclass[11pt]{scrreprt}
+% ------------------------------------------------------
+% Basic typography and internationalisation
+\usepackage[T1]{fontenc}        % modern font encoding
+\usepackage[utf8]{inputenc}     % UTF-8 source
+\usepackage[english]{babel}     
+\usepackage{lmodern}            % improved Latin Modern fonts
+\usepackage{microtype}          % better kerning & justification
+\usepackage{xspace}            % smart spacing after commands
+% ------------------------------------------------------
+% Layout
+\usepackage{geometry}
+\geometry{margin=1in}
+% Listings (for any future code extracts)
+\usepackage{listings}
+\lstset{
+  basicstyle   = \ttfamily\small,
+  breaklines   = true,
+  frame        = single,
+  showstringspaces = false
+}
+% Hyperlinks
+\usepackage{hyperref}
+\hypersetup{
+  pdfusetitle,
+  colorlinks  = false,
+  pdfborder   = {0 0 0}
+}
+% ------------------------------------------------------
+% Convenience macros
+\newcommand*{\product}{\textit{Whack-a-Prof}\xspace}
+\def\version{1.1}
+\date{\today}
+% ------------------------------------------------------
+\begin{document}
+
+% =============== Title page ===============================================
+\begin{titlepage}
+  \centering
+  {\Huge\bfseries Software Requirements\\[4pt] Specification\par}
+  \vspace{1.5cm}
+  {\LARGE \product\par}
+  \vfill
+  {\Large Version \version\par}
+  \vspace{1cm}
+  {\large Prepared by Team 2 – Specifications Group\par}
+  {\large CISC 3140 Project • Brooklyn College\par}
+  {\large \today}
+  \vfill
+  \rule{\linewidth}{0.5mm}
+\end{titlepage}
+
+\tableofcontents
+\clearpage
+
+% ====================== 1  INTRODUCTION ====================================
+\chapter{Introduction}
+
+\section{Purpose}
+This document specifies the requirements for the browser-based game \product, covering functionality, user interfaces, constraints, and external interactions.
+
+\section{Document Conventions}
+The structure follows IEEE Std 830-1998 (SRS).
+
+\section{Intended Audience and Reading Suggestions}
+\begin{itemize}
+  \item \textbf{Development Team}: Chapters 2–5
+  \item \textbf{QA Testers}: Chapters 3–5
+  \item \textbf{Evaluators}: All chapters
+\end{itemize}
+
+\section{Project Scope}
+\product is an arcade-style browser game inspired by \emph{Whack-a-Mole}. Players earn points by hitting professors as doors open. The game was developed for CISC 3140 at Brooklyn College.
+
+\section{References}
+\begin{itemize}
+  \item IEEE SRS Standard 830-1998
+  \item K. Wiegers, “Software Requirements,” \url{http://karlwiegers.com}
+\end{itemize}
+
+% ====================== 2  OVERALL DESCRIPTION =============================
+\chapter{Overall Description}
+
+\section{Product Perspective}
+\product is a standalone, client-side web application built with HTML5, JavaScript, and CSS.
+
+\section{Product Functions}
+\begin{itemize}
+  \item Start, pause, and end gameplay
+  \item Score points by hitting professor characters
+  \item Randomised character appearance
+  \item Local-storage leaderboard (highest score)
+  \item Special “trustee” student character with unique explosion animation when hit.
+  \item User select what weapon to use
+\end{itemize}
+
+\section{User Classes and Characteristics}
+\begin{itemize}
+  \item \textbf{Primary}: Project evaluators / professors
+  \item \textbf{Secondary}: QA testers
+  \item \textbf{Tertiary}: Development team
+  \item \textbf{End-users}: General players
+\end{itemize}
+
+\section{Operating Environment}
+\begin{itemize}
+    \item \emph{Hardware}: PC, laptop, or mobile device capable of running a modern web browser, equipped with mouse, trackpad, or touchscreen input.
+    \item \emph{Software}: A modern web browser supporting HTML5, CSS3, and JavaScript (See Section 2.7 for specific target browsers and versions).
+    \item \emph{Display Requirements}:
+        \begin{itemize}
+            \item \textbf{Responsive Layout}: The game utilizes a responsive design. The user interface elements, particularly the game board, dynamically adapt to the available browser viewport size.
+            \item \textbf{Minimum Usable Viewport}: While the layout adapts fluidly, a minimum viewport size of 375 $\times$ 667 pixels (typical portrait smartphone) is recommended to ensure comfortable interaction and readability. Functionality on significantly smaller viewports is not guaranteed.
+            \item \textbf{Pixel Density}: The application is designed to render correctly on both standard-resolution and high-DPI displays (such as Apple Retina displays).
+        \end{itemize}
+\end{itemize}
+
+\section{Design and Implementation Constraints}
+\begin{itemize}
+  \item Implemented entirely in JavaScript (approved libraries permitted)
+  \item Source repository hosted on Brooklyn College SVN servers
+\end{itemize}
+
+\section{User Documentation}
+\begin{itemize}
+  \item In-game interactive tutorial
+  \item Contextual help prompts / tooltips
+\end{itemize}
+
+\section{Assumptions and Dependencies}
+\begin{itemize}
+  \item JavaScript and local-storage enabled in browser
+  \item Target browsers: Chrome (version 135.0.7049.3 and above), Firefox (version 137.0 and above), Safari (version 18.3 and above), Edge (version 135.0.3179.54 and above)
+  \item External libraries may be adopted later (TBD)
+\end{itemize}
+
+% ====================== 3  EXTERNAL INTERFACES =============================
+\chapter{External Interface Requirements}
+
+\section{User Interfaces}
+\begin{itemize}
+  \item Home screen: {Start{ button (dead center of the screen)}, Tutorial button (slightly below the Start button), clicking it will open a video that explains how to play.}, {High Scores (top center of the scene). }
+  \item When the user clicks the Start button, a bunch of weapons (graphic designer's choice) are displayed in the center of the screen. 
+  \item The game field with 9 doors will be displayed (spread randomly from left to right of the screen) when a weapon is selected. The professor will appear randomly through one of the doors.
+  \item Dynamic timer (top left of the screen) and score display (slightly to the right of the timer)
+  \item Pause/Resume button icon (top right of the screen) and Exit/End game button icon (slightly to the right of the pause/resume button icon).
+  \item Toggle Mute button icon (slightly to the left of the pause/resume button icon).
+  \item Game over screen will display a square box in the center of the screen that displays your best score and current score, below it will have a home button and a play again button icon that the user can interact with.
+\end{itemize}
+Sketches and mock-ups will be supplied separately.
+
+\section{Hardware Interfaces}
+\begin{itemize}
+  \item Mouse / track-pad
+  \item Touchscreen
+\end{itemize}
+
+\section{Software Interfaces}
+\begin{itemize}
+  \item HTML5, CSS3, JavaScript libraries
+  \item Browser Local Storage API
+\end{itemize}
+
+\section{Communication Interfaces}
+None (client-side only).
+
+% ====================== 4  SYSTEM FEATURES =================================
+\chapter{System Features}
+
+\section{Gameplay and Scoring Mechanics}
+
+\subsection{Description}
+A fast-paced game in which doors open at random and reveal professors. Players hit them to earn points; an on-screen score updates immediately. Top scores persist locally.
+
+\subsection{Stimulus/Response Sequences}
+\begin{enumerate}
+  \item Start game: default at 0 points
+  \item User selects a weapon
+  \item Door opens; professor character appears.
+  \item Player clicks / taps character.
+  \item Game increments score.
+  \item Successful hit: +10 points.
+  \item Miss or inactivity: –5 points.
+  \item Trustee student character triggers a brief explosion animation when hit($\approx$ 1 second and -10 points).
+  \item Game ends: when the score reaches below 0 or when the exit/end icon is activated by the user. A game over box will display, user can choose to go home or play again.
+\end{enumerate}
+
+\subsection{Functional Requirements}
+\begin{itemize}
+  \item \textbf{REQ-1.1}: Characters appear at uniformly random intervals of 0.5–1.5 s.
+  \item \textbf{REQ-1.2}: Trustee explosion animation must visibly overlay the screen for $\approx$ 1 s and play an accompanying scream sound effect.
+  \item \textbf{REQ-1.3}: Characters vanish after 2 s if not clicked.
+  \item \textbf{REQ-2.1}: Score updates in real-time and after each interaction.
+  \item \textbf{REQ-2.2}: Top scores are stored via Local Storage.
+  \item \textbf{REQ-2.3}: Sound effect (weapon specific) plays on character hits, misses, and trustee hits. Specific sound to be determined during implementation.
+\end{itemize}
+
+\section{Audio and Sound Effects}
+
+\subsection{Description}
+The game implements a comprehensive sound system to provide audio feedback for game events and enhance the user experience. All sounds follow a consistent style that matches the game's lighthearted theme.
+
+\subsection{Stimulus/Response Sequences}
+\begin{enumerate}
+  \item Game start: Plays introductory sound.
+  \item Professor hit: Plays "hit" sound.
+  \item Miss: Plays "miss" sound.
+  \item Trustee hit: Plays unique "explosion" sound with scream effect.
+  \item Game over: Plays concluding sound.
+  \item New high score: Plays celebratory sound.
+\end{enumerate}
+
+\subsection{Functional Requirements}
+\begin{itemize}
+  \item \textbf{REQ-3.1}: Game must provide audio feedback for all major user interactions and game events.
+  \item \textbf{REQ-3.2}: Distinct sounds must play for:
+    \begin{itemize}
+      \item Game start
+      \item Weapon selection
+      \item Successful professor hits
+      \item Missed attempts
+      \item Trustee character hits (unique explosion sound)
+      \item Game over
+      \item Achievement of new high score
+    \end{itemize}
+  \item \textbf{REQ-3.3}: Sound effects must synchronize with their corresponding visual events with latency $\leq$ 50 ms.
+  \item \textbf{REQ-3.4}: Game must include a mute/unmute toggle button that persists user preference across sessions via Local Storage.
+  \item \textbf{REQ-3.5}: Volume level must be consistent across all sound effects to prevent unexpected loud sounds.
+\end{itemize}
+
+% ====================== 5  NON-FUNCTIONAL REQS =============================
+\chapter{Non-functional Requirements}
+
+\section{Performance}
+\begin{itemize}
+  \item Initial page load $\leq$ 5 s (on broadband).
+  \item Animation renders at 60 fps on supported hardware.
+\end{itemize}
+
+\section{Security}
+No sensitive data processed. All data remain local to the browser.
+
+\section{Software Quality Attributes}
+\begin{itemize}
+  \item Readable, maintainable codebase
+  \item Robust gameplay with graceful error handling
+\end{itemize}
+
+\section{Error Handling}
+\begin{itemize}
+  \item Detect and report Local Storage quota issues.
+  \item Provide clear feedback for unsupported browsers.
+\end{itemize}
+
+\section{Audio Requirements}
+\begin{itemize}
+  \item \textbf{Sound Format}: All audio files must be in MP3 format with a fallback to WAV format for maximum browser compatibility.
+  \item \textbf{File Size}: Individual sound effect files must not exceed 100 KB to ensure quick loading times.
+  \item \textbf{Latency}: Audio playback must begin within 50 ms of the triggering event to maintain synchronization with visual feedback.
+  \item \textbf{Accessibility}: Game must remain fully playable with audio disabled.
+  \item \textbf{Volume Control}: In addition to mute/unmute functionality, the game should provide volume adjustment capability, with volume setting persisted in Local Storage.
+  \item \textbf{Memory Usage}: Audio system must efficiently pre-load and cache sound effects to prevent performance degradation during gameplay.
+  \item \textbf{Fallback Mechanism}: The game must gracefully handle scenarios where audio playback is not supported or permission is denied by the browser.
+\end{itemize}
+
+% \section{Future Enhancements}
+% \begin{itemize}
+%   \item Multiplayer mode
+%   \item Additional characters and effects
+% \end{itemize}
+
+% ====================== 6  OTHER REQUIREMENTS ==============================
+% \chapter{Other Requirements}
+% None at present.
+
+% ====================== APPENDICES =========================================
+\appendix
+
+\chapter{Glossary}
+\begin{description}
+  \item[Professor] Standard clickable target.
+  \item[Trustee] Special character triggering explosion animation.
+  \item[FPS] Frames per second.
+  \item[Local Storage] Browser-side key-value store.
+\end{description}
+
+%\chapter{Analysis Models}
+% Placeholder for future UML diagrams or other models.
+
+\chapter{To Be Determined}
+\begin{itemize}
+  \item Final UI mock-ups and design specifics
+  \item Final JavaScript library selection
+  \item Precise animation specification for trustee effect
+\end{itemize}
+
+\end{document}
